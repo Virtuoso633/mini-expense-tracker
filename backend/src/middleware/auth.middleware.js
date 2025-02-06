@@ -38,56 +38,98 @@
 // module.exports = authMiddleware;
 
 
+// // backend/src/middleware/auth.middleware.js
+// const jwt = require('jsonwebtoken');
+
+// const authMiddleware = async (req, res, next) => {
+//   // Skip authentication for login and register routes
+//   if (req.path.includes('/api/auth/login') || 
+//       req.path.includes('/api/auth/register')) {
+//     return next();
+//   }
+
+//   try {
+//     const token = req.cookies.accessToken;
+    
+//     if (!token) {
+//       // Try refresh token if access token is missing
+//       const refreshToken = req.cookies.refreshToken;
+//       if (refreshToken) {
+//         try {
+//           const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+//           // Generate new access token
+//           const newAccessToken = jwt.sign(
+//             { userId: decoded.userId },
+//             process.env.JWT_SECRET,
+//             { expiresIn: '15m' }
+//           );
+          
+//           // Set new access token cookie
+//           res.cookie('accessToken', newAccessToken, {
+//             httpOnly: true,
+//             secure: process.env.NODE_ENV === 'production',
+//             sameSite: 'none',
+//             maxAge: 15 * 60 * 1000
+//           });
+          
+//           req.user = { userId: decoded.userId };
+//           return next();
+//         } catch (refreshError) {
+//           console.error('Token refresh failed:', refreshError);
+//         }
+//       }
+      
+//       return res.status(401).json({ 
+//         message: 'Authentication required',
+//         code: 'TOKEN_MISSING'
+//       });
+//     }
+
+//     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+//     req.user = { userId: decoded.userId };
+//     next();
+//   } catch (error) {
+//     console.error('Auth middleware error:', error);
+//     res.status(401).json({ 
+//       message: 'Invalid token',
+//       code: 'TOKEN_INVALID'
+//     });
+//   }
+// };
+
+// module.exports = authMiddleware;
+
+
+// code 3
 // backend/src/middleware/auth.middleware.js
 const jwt = require('jsonwebtoken');
 
 const authMiddleware = async (req, res, next) => {
-  // Skip authentication for login and register routes
-  if (req.path.includes('/api/auth/login') || 
-      req.path.includes('/api/auth/register')) {
-    return next();
-  }
-
   try {
+    // Check for token in cookies
     const token = req.cookies.accessToken;
     
     if (!token) {
-      // Try refresh token if access token is missing
-      const refreshToken = req.cookies.refreshToken;
-      if (refreshToken) {
-        try {
-          const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
-          // Generate new access token
-          const newAccessToken = jwt.sign(
-            { userId: decoded.userId },
-            process.env.JWT_SECRET,
-            { expiresIn: '15m' }
-          );
-          
-          // Set new access token cookie
-          res.cookie('accessToken', newAccessToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'none',
-            maxAge: 15 * 60 * 1000
-          });
-          
-          req.user = { userId: decoded.userId };
-          return next();
-        } catch (refreshError) {
-          console.error('Token refresh failed:', refreshError);
-        }
-      }
-      
+      console.log('No access token found in cookies');
       return res.status(401).json({ 
         message: 'Authentication required',
         code: 'TOKEN_MISSING'
       });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = { userId: decoded.userId };
-    next();
+    // Verify token
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      req.user = { userId: decoded.userId };
+      console.log('Token verified, user:', req.user);
+      next();
+    } catch (error) {
+      console.error('Token verification failed:', error);
+      // Clear invalid cookies
+      res.clearCookie('accessToken');
+      res.clearCookie('refreshToken');
+      throw error;
+    }
   } catch (error) {
     console.error('Auth middleware error:', error);
     res.status(401).json({ 
@@ -96,5 +138,3 @@ const authMiddleware = async (req, res, next) => {
     });
   }
 };
-
-module.exports = authMiddleware;

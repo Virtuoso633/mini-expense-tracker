@@ -64,7 +64,7 @@ const allowedOrigins = [
 ].filter(Boolean);
 
 // Middleware
-app.use(express.json());
+
 app.use(cookieParser());
 app.use(cors({
   origin: function(origin, callback) {
@@ -81,6 +81,7 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization'],
   exposedHeaders: ['set-cookie']
 }));
+app.use(express.json());
 
 // Routes
 const authRoutes = require('./routes/auth.routes');
