@@ -61,7 +61,7 @@ app.use(helmet());
 // CORS configuration
 const allowedOrigins = [
   'http://localhost:3000',
-  'https://mini-expense-tracker-qz4z3qht5-sanket-devmundes-projects.vercel.app',
+  'mini-expense-tracker-6dbb2uq34-sanket-devmundes-projects.vercel.app',
   process.env.FRONTEND_URL
 ].filter(Boolean);
 
@@ -69,15 +69,16 @@ const allowedOrigins = [
 
 app.use(cookieParser());
 app.use(cors({
-  origin: function(origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      console.log('Blocked origin:', origin);
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
+  // origin: function(origin, callback) {
+  //   // Allow requests with no origin (like mobile apps or curl requests)
+  //   if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+  //     callback(null, true);
+  //   } else {
+  //     console.log('Blocked origin:', origin);
+  //     callback(new Error('Not allowed by CORS'));
+  //   }
+  // },
+  origin: true, // Allow all origins temporarily for debugging
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
