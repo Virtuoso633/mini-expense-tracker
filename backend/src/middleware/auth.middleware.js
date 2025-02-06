@@ -100,41 +100,61 @@
 // module.exports = authMiddleware;
 
 
+
 // code 3
 // backend/src/middleware/auth.middleware.js
 const jwt = require('jsonwebtoken');
+const tokenUtil = require('../utils/token.util');
 
 const authMiddleware = async (req, res, next) => {
   try {
-    // Check for token in cookies
-    const token = req.cookies.accessToken;
-    
-    if (!token) {
-      console.log('No access token found in cookies');
-      return res.status(401).json({ 
+    console.log('Request URL:', req.url);
+    console.log('Cookies:', req.cookies);
+    console.log('Headers:', req.headers);
+
+    const accessToken = req.cookies.accessToken;
+    const refreshToken = req.cookies.refreshToken;
+
+    if (!accessToken && !refreshToken) {
+      return res.status(401).json({
         message: 'Authentication required',
-        code: 'TOKEN_MISSING'
+        code: 'NO_TOKENS'
       });
     }
 
-    // Verify token
     try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      req.user = { userId: decoded.userId };
-      console.log('Token verified, user:', req.user);
-      next();
+      if (accessToken) {
+        const decoded = jwt.verify(accessToken, process.env.JWT_SECRET);
+        req.user = { userId: decoded.userId };
+        return next();
+      }
+
+      if (refreshToken) {
+        const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+        const { accessToken: newAccessToken } = tokenUtil.generateTokens(decoded.userId);
+        
+        tokenUtil.setTokenCookies(res, newAccessToken, refreshToken);
+        
+        req.user = { userId: decoded.userId };
+        return next();
+      }
     } catch (error) {
       console.error('Token verification failed:', error);
-      // Clear invalid cookies
-      res.clearCookie('accessToken');
-      res.clearCookie('refreshToken');
-      throw error;
+      res.clearCookie('accessToken', { path: '/' });
+      res.clearCookie('refreshToken', { path: '/' });
+      
+      return res.status(401).json({
+        message: 'Invalid token',
+        code: 'INVALID_TOKEN'
+      });
     }
   } catch (error) {
     console.error('Auth middleware error:', error);
-    res.status(401).json({ 
-      message: 'Invalid token',
-      code: 'TOKEN_INVALID'
+    return res.status(500).json({
+      message: 'Server error',
+      code: 'SERVER_ERROR'
     });
   }
 };
+
+module.exports = authMiddleware;
