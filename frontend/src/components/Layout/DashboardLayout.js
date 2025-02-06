@@ -40,13 +40,13 @@ const DashboardLayout = ({ children }) => {
     const theme = useTheme();
     const { mode, toggleTheme } = useAppTheme();
     
-    // Use theme in your styles
-    const drawerStyles = {
-        paper: {
-        backgroundColor: theme.palette.background.default,
-        color: theme.palette.text.primary
-        }
-    };
+    // // Use theme in your styles
+    // const drawerStyles = {
+    //     paper: {
+    //     backgroundColor: theme.palette.background.default,
+    //     color: theme.palette.text.primary
+    //     }
+    // };
 
     const handleDrawerToggle = () => {
         setMobileOpen(!mobileOpen);

@@ -442,7 +442,7 @@ import {
     Card,
     CardContent,
     useTheme,
-    useMediaQuery,
+    //useMediaQuery,
     CircularProgress
 } from '@mui/material';
 import { useTheme as useAppTheme } from '../contexts/ThemeContext';
