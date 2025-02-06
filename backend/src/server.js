@@ -59,15 +59,21 @@ app.use(helmet());
 // CORS configuration
 const allowedOrigins = [
   'http://localhost:3000',
+  'https://mini-expense-tracker-qz4z3qht5-sanket-devmundes-projects.vercel.app/',
   process.env.FRONTEND_URL
-];
+];filter(Boolean);
 
 // Middleware
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({
   origin: function(origin, callback) {
-    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) {
+      return callback(null, true);
+    }
+
+    if (allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
       console.log('Blocked origin:', origin);
