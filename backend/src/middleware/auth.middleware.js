@@ -148,8 +148,8 @@ const authMiddleware = async (req, res, next) => {
       }
     } catch (error) {
       console.error('Token verification failed:', error);
-      res.clearCookie('accessToken');
-      res.clearCookie('refreshToken');
+      res.clearCookie('accessToken', { path: '/' });
+      res.clearCookie('refreshToken', { path: '/' });
       
       throw error;
     }

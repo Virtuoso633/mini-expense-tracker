@@ -65,7 +65,7 @@ export const AuthProvider = ({ children }) => {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message);
+        throw new Error(error.message);
       }
 
       setUser(data.user);
@@ -74,6 +74,7 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       return { success: false, error: error.message };
     }
+
   };
 
   const logout = async () => {

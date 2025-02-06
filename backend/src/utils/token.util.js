@@ -19,10 +19,12 @@ const tokenUtil = {
   },
 
   setTokenCookies: (res, accessToken, refreshToken) => {
+    const isDevelopment = process.env.NODE_ENV !== 'production';
+
     const cookieOptions = {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'none', // Changed from 'strict' to allow cross-origin
+      secure:!isDevelopment,
+      sameSite: isDevelopment ? 'lax' : 'none',
       path: '/',
       maxAge: 24 * 60 * 60 * 1000 // 24 hours
     };
