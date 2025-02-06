@@ -532,12 +532,13 @@ const Dashboard = () => {
   const [totalExpense, setTotalExpense] = useState(0);
   const [chartData, setChartData] = useState([]);
   const [recentTransactions, setRecentTransactions] = useState([]);
+  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
   const fetchDashboardData = useCallback(async () => {
     setLoading(true);
     try {
       // First, fetch expenses
-      const expensesResponse = await fetch('http://localhost:5000/api/expenses', {
+      const expensesResponse = await fetch('${API_URL}/api/expenses', {
         credentials: 'include'
       });
       
@@ -549,7 +550,7 @@ const Dashboard = () => {
       console.log('Expenses data:', expensesData); // Debug log
 
       // Then fetch insights
-      const insightsResponse = await fetch('http://localhost:5000/api/expenses/insights', {
+      const insightsResponse = await fetch('${API_URL}/api/expenses/insights', {
         credentials: 'include'
       });
       
@@ -593,7 +594,7 @@ const Dashboard = () => {
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this expense?')) {
       try {
-        const response = await fetch(`http://localhost:5000/api/expenses/${id}`, {
+        const response = await fetch(`${API_URL}/api/expenses/${id}`, {
           method: 'DELETE',
           credentials: 'include'
         });

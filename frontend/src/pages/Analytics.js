@@ -178,8 +178,10 @@ const Analytics = () => {
         endDate: dateRange.endDate.toISOString()
       });
 
+      const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+      
       const response = await fetch(
-        `http://localhost:5000/api/expenses/insights?${params}`,
+        `${API_URL}/api/expenses/insights?${params}`,
         { credentials: 'include' }
       );
       const data = await response.json();
