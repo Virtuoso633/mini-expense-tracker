@@ -59,7 +59,7 @@ app.use(helmet());
 // CORS configuration
 const allowedOrigins = [
   'http://localhost:3000',
-  'https://mini-expense-tracker-qz4z3qht5-sanket-devmundes-projects.vercel.app/',
+  'https://mini-expense-tracker-qz4z3qht5-sanket-devmundes-projects.vercel.app',
   process.env.FRONTEND_URL
 ].filter(Boolean);
 
