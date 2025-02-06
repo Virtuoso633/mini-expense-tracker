@@ -38,11 +38,13 @@
 // module.exports = authMiddleware;
 
 
+// backend/src/middleware/auth.middleware.js
 const jwt = require('jsonwebtoken');
 
 const authMiddleware = async (req, res, next) => {
   // Skip authentication for login and register routes
-  if (req.path.includes('/auth/login') || req.path.includes('/auth/register')) {
+  if (req.path.includes('/api/auth/login') || 
+      req.path.includes('/api/auth/register')) {
     return next();
   }
 
@@ -50,17 +52,19 @@ const authMiddleware = async (req, res, next) => {
     const token = req.cookies.accessToken;
     
     if (!token) {
-      // Try to refresh the token if refresh token exists
+      // Try refresh token if access token is missing
       const refreshToken = req.cookies.refreshToken;
       if (refreshToken) {
         try {
           const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+          // Generate new access token
           const newAccessToken = jwt.sign(
             { userId: decoded.userId },
             process.env.JWT_SECRET,
             { expiresIn: '15m' }
           );
           
+          // Set new access token cookie
           res.cookie('accessToken', newAccessToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
@@ -86,12 +90,6 @@ const authMiddleware = async (req, res, next) => {
     next();
   } catch (error) {
     console.error('Auth middleware error:', error);
-    if (error.name === 'TokenExpiredError') {
-      return res.status(401).json({ 
-        message: 'Token expired',
-        code: 'TOKEN_EXPIRED'
-      });
-    }
     res.status(401).json({ 
       message: 'Invalid token',
       code: 'TOKEN_INVALID'
