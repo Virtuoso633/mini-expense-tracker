@@ -7,6 +7,14 @@ const expenseController = {
   // Create new expense
     create: async (req, res) => {
         try {
+
+          if (!req.user || !req.user.userId) {
+            return res.status(401).json({
+                message: 'User not authenticated',
+                error: 'NO_USER_ID'
+            });
+          }
+
             console.log('Received expense data:', req.body); // Add logging
             console.log('User ID from token:', req.user.userId); // Add logging
             const expense = new Expense({
