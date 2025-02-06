@@ -1,3 +1,4 @@
+// /Users/sanket/Documents/mini-expense-tracker/backend/src/controllers/auth.controller.js
 const User = require('../models/user.model');
 const jwt = require('jsonwebtoken');
 const tokenUtil = require('../utils/token.util');

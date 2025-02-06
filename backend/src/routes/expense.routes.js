@@ -1,3 +1,5 @@
+// /Users/sanket/Documents/mini-expense-tracker/backend/src/routes/expense.routes.js
+
 const express = require('express');
 const router = express.Router();
 const expenseController = require('../controllers/expense.controller');
@@ -6,11 +8,11 @@ const authMiddleware = require('../middleware/auth.middleware');
 // Apply auth middleware to all routes
 router.use(authMiddleware);
 
-router.post('/',authMiddleware, expenseController.create);
-router.get('/',authMiddleware, expenseController.getAll);
-router.get('/insights', authMiddleware, expenseController.getInsights);
-router.get('/:id',authMiddleware, expenseController.getById);
-router.put('/:id', authMiddleware, expenseController.update);
-router.delete('/:id',authMiddleware, expenseController.delete);
+router.post('/',expenseController.create);
+router.get('/',expenseController.getAll);
+router.get('/insights', expenseController.getInsights);
+router.get('/:id', expenseController.getById);
+router.put('/:id', expenseController.update);
+router.delete('/:id', expenseController.delete);
 
 module.exports = router;

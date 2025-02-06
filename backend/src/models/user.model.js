@@ -1,3 +1,4 @@
+// /Users/sanket/Documents/mini-expense-tracker/backend/src/models/user.model.js
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 

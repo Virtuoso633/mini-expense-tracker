@@ -115,7 +115,15 @@ const authMiddleware = async (req, res, next) => {
     const accessToken = req.cookies.accessToken;
     const refreshToken = req.cookies.refreshToken;
 
+    // Skip auth for public routes
+    if (req.path.includes('/auth/login') || 
+        req.path.includes('/auth/register') || 
+        req.path === '/') {
+      return next();
+    }
+
     if (!accessToken && !refreshToken) {
+      console.log('No tokens found for path:', req.path);
       return res.status(401).json({
         message: 'Authentication required',
         code: 'NO_TOKENS'
@@ -140,19 +148,16 @@ const authMiddleware = async (req, res, next) => {
       }
     } catch (error) {
       console.error('Token verification failed:', error);
-      res.clearCookie('accessToken', { path: '/' });
-      res.clearCookie('refreshToken', { path: '/' });
+      res.clearCookie('accessToken');
+      res.clearCookie('refreshToken');
       
-      return res.status(401).json({
-        message: 'Invalid token',
-        code: 'INVALID_TOKEN'
-      });
+      throw error;
     }
   } catch (error) {
     console.error('Auth middleware error:', error);
-    return res.status(500).json({
-      message: 'Server error',
-      code: 'SERVER_ERROR'
+    return res.status(401).json({
+      message: 'Invalid token',
+      code: 'INVALID_TOKEN'
     });
   }
 };

@@ -1,4 +1,4 @@
-
+// /Users/sanket/Documents/mini-expense-tracker/backend/src/utils/token.util.js
 const jwt = require('jsonwebtoken');
 
 const tokenUtil = {

@@ -1,3 +1,5 @@
+// /Users/sanket/Documents/mini-expense-tracker/backend/src/utils/categories.js
+
 const EXPENSE_CATEGORIES = [
     'Food',
     'Transportation',
