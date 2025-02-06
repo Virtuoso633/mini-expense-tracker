@@ -29,10 +29,20 @@ const authController = {
       // Generate tokens
       const { accessToken, refreshToken } = tokenUtil.generateTokens(user._id);
       
-      // Set cookies
-      tokenUtil.setTokenCookies(res, accessToken, refreshToken);
+      // Set cookies with proper options for cross-origin
+      const cookieOptions = {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'none',
+        path: '/',
+        maxAge: 24 * 60 * 60 * 1000 // 24 hours
+      };
+
+      res.cookie('accessToken', accessToken, cookieOptions);
+      res.cookie('refreshToken', refreshToken, cookieOptions);
 
       res.status(201).json({
+        success: true,
         user: {
           id: user._id,
           firstName: user.firstName,
@@ -41,7 +51,12 @@ const authController = {
         }
       });
     } catch (error) {
-      res.status(500).json({ message: 'Server error' });
+      console.error('Registration error:', error);
+      res.status(500).json({ 
+        success: false,
+        message: 'Registration failed',
+        details: process.env.NODE_ENV === 'development' ? error.message : undefined 
+      });
     }
   },
 
@@ -49,36 +64,44 @@ const authController = {
     try {
       const { email, password } = req.body;
 
-      // Validate input
       if (!email || !password) {
         return res.status(400).json({ 
+          success: false,
           message: 'Email and password are required' 
         });
       }
 
-      // Find user
       const user = await User.findOne({ email });
       if (!user) {
-        return res.status(400).json({ 
+        return res.status(401).json({ 
+          success: false,
           message: 'Invalid credentials' 
         });
       }
 
-      // Verify password
       const isMatch = await user.comparePassword(password);
       if (!isMatch) {
-        return res.status(400).json({ 
+        return res.status(401).json({ 
+          success: false,
           message: 'Invalid credentials' 
         });
       }
 
-      // Generate tokens
       const { accessToken, refreshToken } = tokenUtil.generateTokens(user._id);
       
-      // Set cookies
-      tokenUtil.setTokenCookies(res, accessToken, refreshToken);
+      const cookieOptions = {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'none',
+        path: '/',
+        maxAge: 24 * 60 * 60 * 1000
+      };
+
+      res.cookie('accessToken', accessToken, cookieOptions);
+      res.cookie('refreshToken', refreshToken, cookieOptions);
 
       res.json({
+        success: true,
         user: {
           id: user._id,
           firstName: user.firstName,
@@ -87,7 +110,11 @@ const authController = {
         }
       });
     } catch (error) {
-      res.status(500).json({ message: 'Server error' });
+      console.error('Login error:', error);
+      res.status(500).json({ 
+        success: false,
+        message: 'Login failed' 
+      });
     }
   },
 
@@ -97,47 +124,75 @@ const authController = {
       
       if (!refreshToken) {
         return res.status(401).json({ 
+          success: false,
           message: 'Refresh token required' 
         });
       }
 
-      try {
-        const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
-        const { accessToken, refreshToken: newRefreshToken } = tokenUtil.generateTokens(decoded.userId);
-        
-        tokenUtil.setTokenCookies(res, accessToken, newRefreshToken);
-        
-        res.json({ message: 'Token refreshed successfully' });
-      } catch (error) {
-        res.status(401).json({ 
-          message: 'Invalid refresh token' 
-        });
-      }
+      const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+      const { accessToken, refreshToken: newRefreshToken } = tokenUtil.generateTokens(decoded.userId);
+      
+      const cookieOptions = {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'none',
+        path: '/',
+        maxAge: 24 * 60 * 60 * 1000
+      };
+
+      res.cookie('accessToken', accessToken, cookieOptions);
+      res.cookie('refreshToken', newRefreshToken, cookieOptions);
+      
+      res.json({ 
+        success: true,
+        message: 'Token refreshed successfully' 
+      });
     } catch (error) {
-      res.status(500).json({ message: 'Server error' });
+      console.error('Token refresh error:', error);
+      res.status(401).json({ 
+        success: false,
+        message: 'Invalid refresh token' 
+      });
     }
   },
 
   logout: async (req, res) => {
-    res.cookie('accessToken', '', { maxAge: 0 });
-    res.cookie('refreshToken', '', { maxAge: 0 });
-    res.json({ message: 'Logged out successfully' });
+    const cookieOptions = {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'none',
+      path: '/'
+    };
+
+    res.cookie('accessToken', '', { ...cookieOptions, maxAge: 0 });
+    res.cookie('refreshToken', '', { ...cookieOptions, maxAge: 0 });
+    res.json({ 
+      success: true,
+      message: 'Logged out successfully' 
+    });
   },
 
   getStatus: async (req, res) => {
     try {
-      const user = await User.findById(req.user.userId)
-        .select('-password');
+      const user = await User.findById(req.user.userId).select('-password');
       
       if (!user) {
         return res.status(404).json({ 
+          success: false,
           message: 'User not found' 
         });
       }
 
-      res.json({ user });
+      res.json({ 
+        success: true,
+        user 
+      });
     } catch (error) {
-      res.status(500).json({ message: 'Server error' });
+      console.error('Status check error:', error);
+      res.status(500).json({ 
+        success: false,
+        message: 'Failed to get user status' 
+      });
     }
   }
 };

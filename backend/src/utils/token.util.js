@@ -5,31 +5,34 @@ const tokenUtil = {
     const accessToken = jwt.sign(
       { userId },
       process.env.JWT_SECRET,
-      { expiresIn: process.env.ACCESS_TOKEN_EXPIRE }
+      { expiresIn: '15m' } // Explicit time instead of env variable
     );
 
     const refreshToken = jwt.sign(
       { userId },
       process.env.JWT_REFRESH_SECRET,
-      { expiresIn: process.env.REFRESH_TOKEN_EXPIRE }
+      { expiresIn: '7d' } // Explicit time instead of env variable
     );
 
     return { accessToken, refreshToken };
   },
 
   setTokenCookies: (res, accessToken, refreshToken) => {
-    res.cookie('accessToken', accessToken, {
+    const cookieOptions = {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      sameSite: 'none', // Changed from 'strict' to allow cross-origin
+      path: '/',
+      maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    };
+
+    res.cookie('accessToken', accessToken, {
+      ...cookieOptions,
       maxAge: 15 * 60 * 1000 // 15 minutes
     });
 
     res.cookie('refreshToken', refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      path: '/api/auth/refresh',
+      ...cookieOptions,
       maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
     });
   }
