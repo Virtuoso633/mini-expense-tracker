@@ -538,7 +538,7 @@ const Dashboard = () => {
     setLoading(true);
     try {
       // First, fetch expenses
-      const expensesResponse = await fetch('${API_URL}/api/expenses', {
+      const expensesResponse = await fetch(`${API_URL}/api/expenses`, {
         credentials: 'include'
       });
       
@@ -550,7 +550,7 @@ const Dashboard = () => {
       console.log('Expenses data:', expensesData); // Debug log
 
       // Then fetch insights
-      const insightsResponse = await fetch('${API_URL}/api/expenses/insights', {
+      const insightsResponse = await fetch(`${API_URL}/api/expenses/insights`, {
         credentials: 'include'
       });
       

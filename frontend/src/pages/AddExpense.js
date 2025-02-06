@@ -15,6 +15,8 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import DashboardLayout from '../components/Layout/DashboardLayout';
 
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+
 const categories = [
   'Food',
   'Transportation',
@@ -53,8 +55,7 @@ const AddExpense = () => {
 
     setLoading(true);
     try {
-      const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
-      const response = await fetch('${API_URL}/api/expenses', {
+      const response = await fetch(`${API_URL}/api/expenses`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
