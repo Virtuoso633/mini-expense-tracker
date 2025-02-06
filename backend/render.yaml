@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: expense-tracker-api
+    env: node
+    buildCommand: npm install
+    startCommand: node src/server.js
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_REFRESH_SECRET
+        sync: false
+      - key: FRONTEND_URL
+        value: "https://mini-expense-tracker-virtuoso633-sanket-devmundes-projects.vercel.app"
