@@ -9,8 +9,8 @@ router.use(authMiddleware);
 router.post('/',authMiddleware, expenseController.create);
 router.get('/',authMiddleware, expenseController.getAll);
 router.get('/insights', authMiddleware, expenseController.getInsights);
-router.get('/:id', expenseController.getById);
-router.put('/:id', expenseController.update);
+router.get('/:id',authMiddleware, expenseController.getById);
+router.put('/:id', authMiddleware, expenseController.update);
 router.delete('/:id',authMiddleware, expenseController.delete);
 
 module.exports = router;
